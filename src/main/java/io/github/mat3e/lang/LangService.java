@@ -1,14 +1,13 @@
 package io.github.mat3e.lang;
 
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 class LangService {
     private LangRepository repository;
-
-    LangService() {
-        this(new LangRepository());
-    }
 
     LangService(LangRepository repository) {
         this.repository = repository;

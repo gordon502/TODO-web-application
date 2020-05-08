@@ -2,6 +2,9 @@ package io.github.mat3e.hello;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,10 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 
-@WebServlet(name = "Hello", urlPatterns = {"/api"})
-public class HelloServlet extends HttpServlet {
+@RestController
+class HelloServlet {
     private static final String NAME_PARAM = "name";
     private static final String LANG_PARAM = "lang";
     private final Logger logger = LoggerFactory.getLogger(HelloServlet.class);
@@ -20,29 +22,18 @@ public class HelloServlet extends HttpServlet {
     private HelloService service;
 
 
-    /**
-     * Servlet container needs it.
-     */
-    public HelloServlet() {
-        this(new HelloService());
-    }
-
     HelloServlet(HelloService service) {
         this.service = service;
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        logger.info("Got request with parameters: " + req.getParameterMap());
-        String name = req.getParameter(NAME_PARAM);
-        String lang = req.getParameter(LANG_PARAM);
-        Integer langId = null;
-        try {
-            langId = Integer.valueOf(lang);
-        }
-        catch (NumberFormatException e) {
-            logger.warn("Non-numeric language id used: " + lang);
-        }
-        resp.getWriter().write(service.prepareGreeting(name, langId));
+    @GetMapping("/api")
+    String welcome() {
+        return welcome(null, null);
+    }
+
+    @GetMapping(value = "/api", params = {"lang", "name"})
+    String welcome(@RequestParam("lang") Integer langId, @RequestParam("name") String name) {
+        logger.info("Got request");
+        return service.prepareGreeting(name, langId);
     }
 }
